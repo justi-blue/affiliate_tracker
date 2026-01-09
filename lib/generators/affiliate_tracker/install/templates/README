@@ -1,0 +1,19 @@
+
+===============================================================================
+
+AffiliateTracker has been installed!
+
+Next steps:
+1. Run migrations:
+   $ rails db:migrate
+
+2. Configure in config/initializers/affiliate_tracker.rb
+
+3. Use in your views/mailers:
+   <%= affiliate_link "https://shop.com", "Shop Now", shop_id: 1 %>
+   <%= affiliate_url "https://shop.com", campaign: "email" %>
+
+4. Access dashboard at:
+   /a/dashboard
+
+===============================================================================
