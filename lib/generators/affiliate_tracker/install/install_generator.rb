@@ -24,7 +24,7 @@ module AffiliateTracker
       end
 
       def mount_engine
-        route 'mount AffiliateTracker::Engine, at: AffiliateTracker.configuration.route_path'
+        route 'mount AffiliateTracker::Engine, at: "/a"'
       end
 
       def show_readme

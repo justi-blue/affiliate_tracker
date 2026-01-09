@@ -35,7 +35,7 @@ module AffiliateTracker
     end
 
     def route_path
-      AffiliateTracker.configuration.route_path
+      "/a"
     end
 
     def secret_key

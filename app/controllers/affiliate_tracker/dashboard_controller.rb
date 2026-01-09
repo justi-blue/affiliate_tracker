@@ -19,22 +19,6 @@ module AffiliateTracker
                                .count
     end
 
-    def clicks
-      @clicks = Click.order(clicked_at: :desc).page(params[:page]).per(50)
-    end
-
-    def stats
-      @daily_stats = Click.where("clicked_at >= ?", 30.days.ago)
-                          .group("DATE(clicked_at)")
-                          .count
-                          .transform_keys(&:to_s)
-
-      respond_to do |format|
-        format.html
-        format.json { render json: @daily_stats }
-      end
-    end
-
     private
 
     def authenticate!

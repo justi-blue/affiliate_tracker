@@ -2,7 +2,7 @@ PATH
   remote: .
   specs:
     affiliate_tracker (0.1.0)
-      rails (>= 7.0)
+      rails (>= 8.0)
 
 GEM
   remote: https://rubygems.org/

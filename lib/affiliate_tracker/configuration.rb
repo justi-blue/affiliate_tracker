@@ -2,50 +2,26 @@
 
 module AffiliateTracker
   class Configuration
-    # Route path for the tracking endpoint (default: "/a")
-    attr_accessor :route_path
-
-    # Enable/disable dashboard (default: true)
-    attr_accessor :dashboard_enabled
-
-    # Dashboard authentication proc (receives controller instance)
+    # Dashboard authentication proc (optional)
     attr_accessor :authenticate_dashboard
 
-    # Custom click handler (receives Click record after save)
+    # Custom click handler (optional)
     attr_accessor :after_click
 
-    # Time window for click deduplication in seconds (default: 5)
-    attr_accessor :dedup_window
-
-    # Writers for base_url and secret_key
-    attr_writer :base_url, :secret_key
-
     def initialize
-      @base_url = nil
-      @route_path = "/a"
-      @secret_key = nil
-      @dashboard_enabled = true
       @authenticate_dashboard = nil
       @after_click = nil
-      @dedup_window = 5
     end
 
     def base_url
-      @base_url || rails_default_host
+      host = Rails.application.routes.default_url_options[:host]
+      raise Error, "Set Rails.application.routes.default_url_options[:host]" unless host
+      protocol = Rails.application.routes.default_url_options[:protocol] || "https"
+      "#{protocol}://#{host}"
     end
 
     def secret_key
-      @secret_key || ENV["AFFILIATE_TRACKER_SECRET_KEY"]
-    end
-
-    private
-
-    def rails_default_host
-      return nil unless defined?(Rails)
-      host = Rails.application&.routes&.default_url_options&.dig(:host)
-      return nil unless host
-      protocol = Rails.application.routes.default_url_options[:protocol] || "https"
-      "#{protocol}://#{host}"
+      Rails.application.key_generator.generate_key("affiliate_tracker", 32)
     end
   end
 end

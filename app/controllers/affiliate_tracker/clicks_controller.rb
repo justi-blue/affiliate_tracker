@@ -27,12 +27,11 @@ module AffiliateTracker
     private
 
     def record_click(destination_url, metadata)
-      dedup_key = "#{request.remote_ip}:#{destination_url}"
-      dedup_window = AffiliateTracker.configuration.dedup_window
+      dedup_key = "affiliate_tracker:#{request.remote_ip}:#{destination_url}"
 
-      # Simple deduplication using Rails cache
-      return if Rails.cache.exist?("affiliate_tracker:#{dedup_key}")
-      Rails.cache.write("affiliate_tracker:#{dedup_key}", true, expires_in: dedup_window.seconds)
+      # Deduplication using Rails.cache (5 seconds window)
+      return if Rails.cache.exist?(dedup_key)
+      Rails.cache.write(dedup_key, true, expires_in: 5.seconds)
 
       click = Click.create!(
         destination_url: destination_url,
