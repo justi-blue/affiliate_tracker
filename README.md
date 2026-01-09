@@ -31,21 +31,20 @@ rails db:migrate
 
 ## Configuration
 
-### Environment Variables (recommended)
+### Required: Secret Key
 
 ```bash
-AFFILIATE_TRACKER_BASE_URL=https://yourapp.com
 AFFILIATE_TRACKER_SECRET_KEY=your-secret-key-min-32-chars
 ```
 
-### Initializer (optional overrides)
+### Optional: Initializer
 
 ```ruby
 # config/initializers/affiliate_tracker.rb
 AffiliateTracker.configure do |config|
-  # Override ENV if needed
-  config.base_url = "https://yourapp.com"
-  config.secret_key = "your-secret-key"
+  # base_url is auto-detected from Rails.application.routes.default_url_options
+  # Override only if needed:
+  # config.base_url = "https://yourapp.com"
 
   # Route path (default: "/a")
   config.route_path = "/a"

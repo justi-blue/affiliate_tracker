@@ -31,11 +31,21 @@ module AffiliateTracker
     end
 
     def base_url
-      @base_url || ENV["AFFILIATE_TRACKER_BASE_URL"]
+      @base_url || rails_default_host
     end
 
     def secret_key
       @secret_key || ENV["AFFILIATE_TRACKER_SECRET_KEY"]
+    end
+
+    private
+
+    def rails_default_host
+      return nil unless defined?(Rails)
+      host = Rails.application&.routes&.default_url_options&.dig(:host)
+      return nil unless host
+      protocol = Rails.application.routes.default_url_options[:protocol] || "https"
+      "#{protocol}://#{host}"
     end
   end
 end
