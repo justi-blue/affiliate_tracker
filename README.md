@@ -31,12 +31,21 @@ rails db:migrate
 
 ## Configuration
 
-Edit `config/initializers/affiliate_tracker.rb`:
+### Environment Variables (recommended)
+
+```bash
+AFFILIATE_TRACKER_BASE_URL=https://yourapp.com
+AFFILIATE_TRACKER_SECRET_KEY=your-secret-key-min-32-chars
+```
+
+### Initializer (optional overrides)
 
 ```ruby
+# config/initializers/affiliate_tracker.rb
 AffiliateTracker.configure do |config|
-  # Required: Base URL for generating links
+  # Override ENV if needed
   config.base_url = "https://yourapp.com"
+  config.secret_key = "your-secret-key"
 
   # Route path (default: "/a")
   config.route_path = "/a"
@@ -48,7 +57,6 @@ AffiliateTracker.configure do |config|
 
   # Custom click handler
   config.after_click = ->(click) {
-    # Integrate with your models
     if click.metadata["shop_id"]
       Shop.find(click.metadata["shop_id"]).increment!(:click_count)
     end

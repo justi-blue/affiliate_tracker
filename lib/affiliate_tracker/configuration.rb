@@ -30,14 +30,12 @@ module AffiliateTracker
       @dedup_window = 5
     end
 
-    # Base URL with Rails fallback
     def base_url
-      @base_url || (defined?(Rails) && Rails.application.respond_to?(:routes) ? Rails.application.routes.default_url_options[:host] : nil)
+      @base_url || ENV["AFFILIATE_TRACKER_BASE_URL"]
     end
 
-    # Secret key with Rails fallback
     def secret_key
-      @secret_key || (defined?(Rails) && Rails.application ? Rails.application.secret_key_base&.first(32) : nil)
+      @secret_key || ENV["AFFILIATE_TRACKER_SECRET_KEY"]
     end
   end
 end
