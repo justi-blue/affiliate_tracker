@@ -2,14 +2,8 @@
 
 module AffiliateTracker
   class Configuration
-    # Base URL for generating tracking links (e.g., "https://yourapp.com")
-    attr_accessor :base_url
-
     # Route path for the tracking endpoint (default: "/a")
     attr_accessor :route_path
-
-    # Secret key for signing URLs (prevents tampering)
-    attr_accessor :secret_key
 
     # Enable/disable dashboard (default: true)
     attr_accessor :dashboard_enabled
@@ -23,6 +17,9 @@ module AffiliateTracker
     # Time window for click deduplication in seconds (default: 5)
     attr_accessor :dedup_window
 
+    # Writers for base_url and secret_key
+    attr_writer :base_url, :secret_key
+
     def initialize
       @base_url = nil
       @route_path = "/a"
@@ -33,12 +30,14 @@ module AffiliateTracker
       @dedup_window = 5
     end
 
+    # Base URL with Rails fallback
     def base_url
-      @base_url || (defined?(Rails) ? Rails.application.routes.default_url_options[:host] : nil)
+      @base_url || (defined?(Rails) && Rails.application.respond_to?(:routes) ? Rails.application.routes.default_url_options[:host] : nil)
     end
 
+    # Secret key with Rails fallback
     def secret_key
-      @secret_key || (defined?(Rails) ? Rails.application.secret_key_base&.first(32) : nil)
+      @secret_key || (defined?(Rails) && Rails.application ? Rails.application.secret_key_base&.first(32) : nil)
     end
   end
 end

@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
 
   spec.summary = "Simple affiliate link tracking for Rails"
   spec.description = "A Rails engine for tracking affiliate link clicks with redirect support and monitoring dashboard."
-  spec.homepage = "https://github.com/justine84/affiliate_tracker"
+  spec.homepage = "https://github.com/justi-blue/affiliate_tracker"
   spec.license = "MIT"
   spec.required_ruby_version = ">= 3.2.0"
 
@@ -24,4 +24,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_dependency "rails", ">= 7.0"
+
+  spec.add_development_dependency "minitest", "~> 5.0"
+  spec.add_development_dependency "rake", "~> 13.0"
 end
