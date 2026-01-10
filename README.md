@@ -2,6 +2,19 @@
 
 Click tracking for affiliates working with small e-commerce shops. Track your clicks, add UTM params, prove your value.
 
+## Who is this for?
+
+**You're an affiliate/influencer** who promotes products from small shops (Shoplo, Shoper, WooCommerce, IdoSell, etc.) that **don't have their own affiliate system**.
+
+You send traffic via newsletters, blogs, or social media — but you have no way to prove how many clicks you actually sent. The shop owner sees some visits in Google Analytics, but can't tell which came from you.
+
+**This gem solves that:**
+- You track every click on your side (proof for negotiations)
+- Links automatically include UTM parameters (shop sees your traffic in their GA)
+- Optional `ref=` parameter for shops that support simple referral tracking
+
+**Not for:** Amazon, eBay, or platforms with existing affiliate programs (they have their own tracking and often prohibit link masking).
+
 ## Problem
 
 ```
