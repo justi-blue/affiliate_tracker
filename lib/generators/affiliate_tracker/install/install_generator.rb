@@ -14,8 +14,8 @@ module AffiliateTracker
         ActiveRecord::Generators::Base.next_migration_number(dirname)
       end
 
-      def create_migration
-        migration_template "create_affiliate_tracker_clicks.rb",
+      def copy_migration
+        migration_template "create_affiliate_tracker_clicks.rb.tt",
                            "db/migrate/create_affiliate_tracker_clicks.rb"
       end
 

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class CreateAffiliateTrackerClicks < ActiveRecord::Migration[7.0]
+class CreateAffiliateTrackerClicks < ActiveRecord::Migration[8.0]
   def change
     create_table :affiliate_tracker_clicks do |t|
       t.string :destination_url, null: false
