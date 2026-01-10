@@ -26,9 +26,15 @@ module AffiliateTracker
     end
 
     def base_url
-      host = Rails.application.routes.default_url_options[:host]
-      raise Error, "Set Rails.application.routes.default_url_options[:host]" unless host
-      protocol = Rails.application.routes.default_url_options[:protocol] || "https"
+      # Try routes first, then ActionMailer::Base as fallback (Rails 8 way)
+      options = Rails.application.routes.default_url_options.presence ||
+                ActionMailer::Base.default_url_options.presence ||
+                {}
+
+      host = options[:host]
+      raise Error, "Set config.action_mailer.default_url_options = { host: 'example.com' } in config/environments/*.rb" unless host
+
+      protocol = options[:protocol] || "https"
       "#{protocol}://#{host}"
     end
 
