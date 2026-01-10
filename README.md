@@ -40,17 +40,59 @@ rails db:migrate
 
 ## Usage
 
-### In Emails/Views
+### affiliate_link helper
 
 ```erb
-<%= affiliate_url "https://modago.pl/sukienka-123",
+<%# Simple link %>
+<%= affiliate_link "https://modago.pl/sukienka", "Zobacz sukienkę" %>
+
+<%# With metadata %>
+<%= affiliate_link "https://modago.pl/sukienka", "Zobacz sukienkę",
       shop: "modago",
-      campaign: "weekly_digest" %>
+      campaign: "homepage" %>
+
+<%# With CSS classes %>
+<%= affiliate_link "https://modago.pl/sukienka", "Zobacz",
+      shop: "modago",
+      class: "btn btn-primary" %>
+
+<%# Block syntax %>
+<%= affiliate_link "https://modago.pl/sukienka", shop: "modago" do %>
+  <img src="photo.jpg"> Zobacz ofertę
+<% end %>
 ```
 
-**Result:**
+**Generates:**
+```html
+<a href="https://yourapp.com/a/eyJ...?s=abc" target="_blank" rel="noopener">
+  Zobacz sukienkę
+</a>
+```
+
+### affiliate_url helper (URL only)
+
+```erb
+<a href="<%= affiliate_url 'https://modago.pl/sukienka', shop: 'modago' %>">
+  Custom link
+</a>
+```
+
+### In Mailers
+
+```erb
+<%# app/views/digest_mailer/weekly.html.erb %>
+<% @promotions.each do |promo| %>
+  <%= affiliate_link promo.shop.website_url, "Zobacz promocję",
+        shop: promo.shop.name.parameterize,
+        campaign: "weekly_digest",
+        promotion_id: promo.id %>
+<% end %>
+```
+
+### Result
+
 1. Generates: `https://yourapp.com/a/eyJ...?s=abc`
-2. On click, redirects to: `https://modago.pl/sukienka-123?utm_source=affiliate&utm_medium=referral&utm_campaign=weekly_digest&utm_content=modago`
+2. On click, redirects to: `https://modago.pl/sukienka?utm_source=smartoffers&utm_medium=email&utm_campaign=weekly_digest&utm_content=modago`
 
 ### Configuration
 
