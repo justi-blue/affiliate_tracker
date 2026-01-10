@@ -89,6 +89,25 @@ rails db:migrate
 <% end %>
 ```
 
+### Real Example: Shoplo Store
+
+```erb
+<%# Link to Shoplo product with shop's ref parameter %>
+<%= affiliate_link "https://demo.shoplo.com/koszulka-bawelniana?ref=partnerJan",
+      "Zobacz koszulkę",
+      shop: "shoplo-demo",
+      campaign: "styczen2025" %>
+```
+
+**User clicks → AffiliateTracker counts → Redirects to:**
+```
+https://demo.shoplo.com/koszulka-bawelniana?ref=partnerJan&utm_source=smartoffers&utm_medium=email&utm_campaign=styczen2025&utm_content=shoplo-demo
+```
+
+The shop sees:
+- `ref=partnerJan` - their internal tracking (preserved)
+- UTM params - in Google Analytics
+
 ### Result
 
 1. Generates: `https://yourapp.com/a/eyJ...?s=abc`
