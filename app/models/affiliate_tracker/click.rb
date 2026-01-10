@@ -7,7 +7,7 @@ module AffiliateTracker
     validates :destination_url, presence: true
     validates :clicked_at, presence: true
 
-    serialize :metadata, coder: JSON
+    # metadata is native JSON column - no serialize needed in Rails 8
 
     scope :today, -> { where("clicked_at >= ?", Time.current.beginning_of_day) }
     scope :this_week, -> { where("clicked_at >= ?", 1.week.ago) }
