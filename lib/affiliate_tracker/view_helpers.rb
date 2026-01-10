@@ -18,10 +18,11 @@ module AffiliateTracker
         options = options
       end
 
-      tracking_url = AffiliateTracker.url(url, **options.except(:class, :id, :target, :rel))
+      html_keys = [:class, :id, :style, :target, :rel]
+      tracking_url = AffiliateTracker.url(url, **options.except(*html_keys))
       html_opts = { href: tracking_url, target: "_blank", rel: "noopener" }
       html_opts.merge!(html_options)
-      html_opts.merge!(options.slice(:class, :id, :target, :rel))
+      html_opts.merge!(options.slice(*html_keys))
 
       content_tag(:a, text, html_opts)
     end
