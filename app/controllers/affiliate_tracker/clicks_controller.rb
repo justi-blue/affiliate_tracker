@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "uri"
+
 module AffiliateTracker
   class ClicksController < ApplicationController
     skip_before_action :verify_authenticity_token, only: [:redirect]
@@ -13,11 +15,14 @@ module AffiliateTracker
         destination_url = data[:destination_url]
         metadata = data[:metadata]
 
-        # Record the click (async-safe)
+        # Record the click
         record_click(destination_url, metadata)
 
+        # Build final URL with UTM parameters
+        final_url = append_utm_params(destination_url, metadata)
+
         # Redirect to destination
-        redirect_to destination_url, allow_other_host: true, status: :moved_permanently
+        redirect_to final_url, allow_other_host: true, status: :moved_permanently
       rescue AffiliateTracker::Error => e
         Rails.logger.warn "[AffiliateTracker] Invalid tracking URL: #{e.message}"
         render plain: "Invalid link", status: :bad_request
@@ -50,9 +55,33 @@ module AffiliateTracker
       Rails.logger.error "[AffiliateTracker] Failed to record click: #{e.message}"
     end
 
+    def append_utm_params(url, metadata)
+      uri = URI.parse(url)
+      params = URI.decode_www_form(uri.query || "")
+
+      # Add UTM params (metadata overrides defaults)
+      config = AffiliateTracker.configuration
+      utm_params = {
+        "utm_source" => metadata["utm_source"] || config.utm_source,
+        "utm_medium" => metadata["utm_medium"] || config.utm_medium,
+        "utm_campaign" => metadata["campaign"],
+        "utm_content" => metadata["shop"]
+      }.compact
+
+      # Merge with existing params (don't overwrite if already present)
+      existing_keys = params.map(&:first)
+      utm_params.each do |key, value|
+        params << [key, value] unless existing_keys.include?(key)
+      end
+
+      uri.query = URI.encode_www_form(params) if params.any?
+      uri.to_s
+    rescue URI::InvalidURIError
+      url
+    end
+
     def anonymize_ip(ip)
       return nil if ip.blank?
-      # Anonymize last octet for privacy
       parts = ip.split(".")
       return ip unless parts.size == 4
       parts[3] = "0"

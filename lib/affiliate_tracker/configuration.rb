@@ -8,9 +8,17 @@ module AffiliateTracker
     # Custom click handler (optional)
     attr_accessor :after_click
 
+    # Default UTM source (your brand name)
+    attr_accessor :utm_source
+
+    # Default UTM medium
+    attr_accessor :utm_medium
+
     def initialize
       @authenticate_dashboard = nil
       @after_click = nil
+      @utm_source = "affiliate"
+      @utm_medium = "referral"
     end
 
     def base_url
