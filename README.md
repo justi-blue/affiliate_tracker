@@ -6,6 +6,7 @@ Simple affiliate link tracking for Rails 8+. Zero configuration required.
 
 - Signed tracking URLs (HMAC-SHA256)
 - Click tracking with metadata
+- Click deduplication (same IP + URL within 5s counted once)
 - Automatic redirect to destination
 - Built-in dashboard
 - View helpers for views and mailers
