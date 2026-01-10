@@ -68,6 +68,50 @@ class UtmParamsTest < Minitest::Test
     assert_nil params.assoc("utm_campaign")
   end
 
+  def test_adds_ref_param_from_config
+    url = "https://shop.com/product"
+    metadata = { "campaign" => "summer" }
+
+    AffiliateTracker.configuration.ref_param = "partnerJan"
+
+    result = append_utm_params(url, metadata)
+    uri = URI.parse(result)
+    params = URI.decode_www_form(uri.query)
+
+    assert_equal "partnerJan", params.assoc("ref")&.last
+    assert_equal "summer", params.assoc("utm_campaign")&.last
+  ensure
+    AffiliateTracker.configuration.ref_param = nil
+  end
+
+  def test_does_not_add_ref_when_nil
+    url = "https://shop.com/product"
+    metadata = {}
+
+    AffiliateTracker.configuration.ref_param = nil
+
+    result = append_utm_params(url, metadata)
+    uri = URI.parse(result)
+    params = URI.decode_www_form(uri.query)
+
+    assert_nil params.assoc("ref")
+  end
+
+  def test_does_not_overwrite_existing_ref
+    url = "https://shop.com/product?ref=existing"
+    metadata = {}
+
+    AffiliateTracker.configuration.ref_param = "partnerJan"
+
+    result = append_utm_params(url, metadata)
+    uri = URI.parse(result)
+    params = URI.decode_www_form(uri.query)
+
+    assert_equal "existing", params.assoc("ref")&.last
+  ensure
+    AffiliateTracker.configuration.ref_param = nil
+  end
+
   private
 
   def append_utm_params(url, metadata)
@@ -75,7 +119,8 @@ class UtmParamsTest < Minitest::Test
     params = URI.decode_www_form(uri.query || "")
 
     config = AffiliateTracker.configuration
-    utm_params = {
+    tracking_params = {
+      "ref" => config.ref_param,
       "utm_source" => metadata["utm_source"] || config.utm_source,
       "utm_medium" => metadata["utm_medium"] || config.utm_medium,
       "utm_campaign" => metadata["campaign"],
@@ -83,7 +128,7 @@ class UtmParamsTest < Minitest::Test
     }.compact
 
     existing_keys = params.map(&:first)
-    utm_params.each do |key, value|
+    tracking_params.each do |key, value|
       params << [key, value] unless existing_keys.include?(key)
     end
 

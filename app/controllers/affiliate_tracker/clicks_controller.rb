@@ -59,9 +59,10 @@ module AffiliateTracker
       uri = URI.parse(url)
       params = URI.decode_www_form(uri.query || "")
 
-      # Add UTM params (metadata overrides defaults)
+      # Add ref and UTM params (metadata overrides defaults)
       config = AffiliateTracker.configuration
-      utm_params = {
+      tracking_params = {
+        "ref" => config.ref_param,
         "utm_source" => metadata["utm_source"] || config.utm_source,
         "utm_medium" => metadata["utm_medium"] || config.utm_medium,
         "utm_campaign" => metadata["campaign"],
@@ -70,7 +71,7 @@ module AffiliateTracker
 
       # Merge with existing params (don't overwrite if already present)
       existing_keys = params.map(&:first)
-      utm_params.each do |key, value|
+      tracking_params.each do |key, value|
         params << [key, value] unless existing_keys.include?(key)
       end
 

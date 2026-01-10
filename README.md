@@ -92,8 +92,8 @@ rails db:migrate
 ### Real Example: Shoplo Store
 
 ```erb
-<%# Link to Shoplo product with shop's ref parameter %>
-<%= affiliate_link "https://demo.shoplo.com/koszulka-bawelniana?ref=partnerJan",
+<%# Just the product URL - ref param added automatically from config %>
+<%= affiliate_link "https://demo.shoplo.com/koszulka-bawelniana",
       "Zobacz koszulkę",
       shop: "shoplo-demo",
       campaign: "styczen2025" %>
@@ -105,7 +105,7 @@ https://demo.shoplo.com/koszulka-bawelniana?ref=partnerJan&utm_source=smartoffer
 ```
 
 The shop sees:
-- `ref=partnerJan` - their internal tracking (preserved)
+- `ref=partnerJan` - from `config.ref_param` (automatic)
 - UTM params - in Google Analytics
 
 ### Result
@@ -124,6 +124,9 @@ AffiliateTracker.configure do |config|
   # Default medium
   config.utm_medium = "email"
 
+  # Referral param (adds ?ref=partnerJan to all links)
+  config.ref_param = "partnerJan"
+
   # Dashboard auth
   config.authenticate_dashboard = -> {
     redirect_to main_app.login_path unless current_user&.admin?
@@ -131,10 +134,11 @@ AffiliateTracker.configure do |config|
 end
 ```
 
-### UTM Parameters
+### Tracking Parameters
 
 | Parameter | Source | Example |
 |-----------|--------|---------|
+| `ref` | `config.ref_param` | `partnerJan` |
 | `utm_source` | `config.utm_source` | `smartoffers` |
 | `utm_medium` | `config.utm_medium` | `email` |
 | `utm_campaign` | `campaign:` in helper | `weekly_digest` |

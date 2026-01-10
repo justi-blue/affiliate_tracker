@@ -14,11 +14,15 @@ module AffiliateTracker
     # Default UTM medium
     attr_accessor :utm_medium
 
+    # Referral parameter (e.g., "partnerJan" adds ?ref=partnerJan)
+    attr_accessor :ref_param
+
     def initialize
       @authenticate_dashboard = nil
       @after_click = nil
       @utm_source = "affiliate"
       @utm_medium = "referral"
+      @ref_param = nil
     end
 
     def base_url
