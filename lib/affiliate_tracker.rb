@@ -19,7 +19,8 @@ module AffiliateTracker
 
     # Generate a trackable affiliate URL
     def track_url(destination_url, metadata = {})
-      UrlGenerator.new(destination_url, metadata).generate
+      merged_metadata = configuration.resolve_default_metadata.merge(metadata)
+      UrlGenerator.new(destination_url, merged_metadata).generate
     end
 
     # Shorthand for track_url

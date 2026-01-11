@@ -17,12 +17,26 @@ module AffiliateTracker
     # Referral parameter (e.g., "partnerJan" adds ?ref=partnerJan)
     attr_accessor :ref_param
 
+    # Default metadata proc - called when generating URLs
+    # Example: -> { { user_id: Current.user&.id } }
+    attr_accessor :default_metadata
+
     def initialize
       @authenticate_dashboard = nil
       @after_click = nil
       @utm_source = "affiliate"
       @utm_medium = "referral"
       @ref_param = nil
+      @default_metadata = nil
+    end
+
+    def resolve_default_metadata
+      return {} unless @default_metadata.respond_to?(:call)
+
+      result = @default_metadata.call
+      result.is_a?(Hash) ? result : {}
+    rescue StandardError
+      {}
     end
 
     def base_url
