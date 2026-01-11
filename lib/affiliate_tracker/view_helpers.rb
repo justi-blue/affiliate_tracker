@@ -15,7 +15,7 @@ module AffiliateTracker
     #   campaign:     - Campaign name (e.g., "daily_digest", "weekly_email")
     #
     # HTML options (applied to <a> tag, not stored):
-    #   class:, id:, style:, target:, rel:
+    #   class:, id:, style:, target:, rel:, data:, aria:
     #
     # Examples:
     #   # Basic link
@@ -42,7 +42,7 @@ module AffiliateTracker
         text = text_or_options
       end
 
-      html_keys = [:class, :id, :style, :target, :rel]
+      html_keys = [:class, :id, :style, :target, :rel, :data, :aria]
       tracking_url = AffiliateTracker.url(url, **options.except(*html_keys))
       html_opts = { href: tracking_url, target: "_blank", rel: "noopener" }
       html_opts.merge!(html_options)
