@@ -90,15 +90,39 @@ rails db:migrate
 </a>
 ```
 
+### User Tracking
+
+Track which user clicked a link by passing `user_id`:
+
+```erb
+<%# On web pages - use Current.user %>
+<%= affiliate_link "https://shop.com/product", "Buy Now",
+      user_id: Current.user&.id,
+      campaign: "homepage" %>
+
+<%# In mailers - pass user explicitly (Current.user not available in background jobs) %>
+<%= affiliate_link "https://shop.com/product", "View Deal",
+      user_id: @user.id,
+      shop_id: @shop.id,
+      campaign: "daily_digest" %>
+```
+
+Common tracking parameters:
+- `user_id` - User who clicked (for attribution)
+- `shop_id` - Shop identifier
+- `promotion_id` - Specific promotion
+- `campaign` - Campaign name (e.g., "daily_digest", "homepage")
+
 ### In Mailers
 
 ```erb
 <%# app/views/digest_mailer/weekly.html.erb %>
 <% @promotions.each do |promo| %>
   <%= affiliate_link promo.shop.website_url, "Zobacz promocję",
-        shop: promo.shop.name.parameterize,
-        campaign: "weekly_digest",
-        promotion_id: promo.id %>
+        user_id: @user.id,
+        shop_id: promo.shop.id,
+        promotion_id: promo.id,
+        campaign: "weekly_digest" %>
 <% end %>
 ```
 

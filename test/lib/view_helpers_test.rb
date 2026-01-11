@@ -272,4 +272,58 @@ class ViewHelpersTest < Minitest::Test
 
     refute_equal sig1, sig2
   end
+
+  # === User Tracking Tests ===
+
+  def test_affiliate_link_with_user_id
+    html = affiliate_link("https://shop.com", "Buy", user_id: 123)
+
+    href = html.match(/href="([^"]+)"/)[1]
+    payload = href.match(%r{/a/([^?]+)\?})[1]
+    signature = href.match(/\?s=([a-f0-9]+)$/)[1]
+    result = AffiliateTracker::UrlGenerator.decode(payload, signature)
+
+    assert_equal 123, result[:metadata]["user_id"]
+  end
+
+  def test_affiliate_link_with_full_tracking
+    html = affiliate_link("https://shop.com", "View Deal",
+      user_id: 42,
+      shop_id: 10,
+      promotion_id: 99,
+      campaign: "daily_digest")
+
+    href = html.match(/href="([^"]+)"/)[1]
+    payload = href.match(%r{/a/([^?]+)\?})[1]
+    signature = href.match(/\?s=([a-f0-9]+)$/)[1]
+    result = AffiliateTracker::UrlGenerator.decode(payload, signature)
+
+    assert_equal 42, result[:metadata]["user_id"]
+    assert_equal 10, result[:metadata]["shop_id"]
+    assert_equal 99, result[:metadata]["promotion_id"]
+    assert_equal "daily_digest", result[:metadata]["campaign"]
+  end
+
+  def test_affiliate_link_without_user_id
+    html = affiliate_link("https://shop.com", "Buy", campaign: "test")
+
+    href = html.match(/href="([^"]+)"/)[1]
+    payload = href.match(%r{/a/([^?]+)\?})[1]
+    signature = href.match(/\?s=([a-f0-9]+)$/)[1]
+    result = AffiliateTracker::UrlGenerator.decode(payload, signature)
+
+    assert_nil result[:metadata]["user_id"]
+    assert_equal "test", result[:metadata]["campaign"]
+  end
+
+  def test_affiliate_url_with_user_id
+    url = affiliate_url("https://shop.com", user_id: 456, campaign: "homepage")
+
+    payload = url.match(%r{/a/([^?]+)\?})[1]
+    signature = url.match(/\?s=([a-f0-9]+)$/)[1]
+    result = AffiliateTracker::UrlGenerator.decode(payload, signature)
+
+    assert_equal 456, result[:metadata]["user_id"]
+    assert_equal "homepage", result[:metadata]["campaign"]
+  end
 end

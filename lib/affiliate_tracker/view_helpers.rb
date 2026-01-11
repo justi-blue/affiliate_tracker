@@ -40,7 +40,6 @@ module AffiliateTracker
         text = capture(&block)
       else
         text = text_or_options
-        options = options
       end
 
       html_keys = [:class, :id, :style, :target, :rel]
