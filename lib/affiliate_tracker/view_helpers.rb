@@ -4,10 +4,35 @@ module AffiliateTracker
   module ViewHelpers
     # Generate a trackable affiliate link
     #
+    # @param url [String] Destination URL
+    # @param text [String] Link text
+    # @param options [Hash] Tracking metadata (stored in click record)
+    #
+    # Common tracking options:
+    #   user_id:      - ID of user who will click (for attribution)
+    #   shop_id:      - Shop/store identifier
+    #   promotion_id: - Specific promotion being clicked
+    #   campaign:     - Campaign name (e.g., "daily_digest", "weekly_email")
+    #
+    # HTML options (applied to <a> tag, not stored):
+    #   class:, id:, style:, target:, rel:
+    #
     # Examples:
+    #   # Basic link
     #   affiliate_link("https://shop.com", "Shop Now")
-    #   affiliate_link("https://shop.com", "Shop Now", shop_id: 1, promotion_id: 2)
-    #   affiliate_link("https://shop.com", shop_id: 1) { "Shop Now" }
+    #
+    #   # With user tracking (recommended for emails)
+    #   affiliate_link("https://shop.com", "Shop Now", user_id: @user.id, campaign: "email")
+    #
+    #   # Full tracking
+    #   affiliate_link("https://shop.com", "View Deal",
+    #     user_id: @user.id,
+    #     shop_id: @shop.id,
+    #     promotion_id: @promotion.id,
+    #     campaign: "daily_digest")
+    #
+    #   # With block
+    #   affiliate_link("https://shop.com", user_id: @user.id) { "Shop Now" }
     #
     def affiliate_link(url, text_or_options = nil, options = {}, html_options = {}, &block)
       if block_given?
@@ -29,9 +54,12 @@ module AffiliateTracker
 
     # Generate just the tracking URL (useful for emails or manual links)
     #
+    # @param url [String] Destination URL
+    # @param metadata [Hash] Tracking data (see affiliate_link for common options)
+    #
     # Examples:
     #   affiliate_url("https://shop.com")
-    #   affiliate_url("https://shop.com", shop_id: 1, campaign: "email_weekly")
+    #   affiliate_url("https://shop.com", user_id: @user.id, campaign: "email_weekly")
     #
     def affiliate_url(url, **metadata)
       AffiliateTracker.url(url, **metadata)
