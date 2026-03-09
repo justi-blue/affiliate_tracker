@@ -200,6 +200,30 @@ Shows:
 - Top destinations (shops)
 - Recent clicks with metadata
 
+## Security
+
+- Links are signed with **HMAC-SHA256** (128-bit truncated signature per RFC 2104)
+- Signature verification uses constant-time comparison (`ActiveSupport::SecurityUtils`)
+- Invalid or missing signatures result in a **302 redirect** to a configurable fallback URL (default: `/`)
+- Payload is Base64-encoded JSON (not encrypted) — metadata is readable but tamper-proof
+
+### Fallback URL
+
+When a user visits a link with an invalid or missing signature (e.g., bots stripping query params), the gem redirects instead of returning an error:
+
+```ruby
+AffiliateTracker.configure do |config|
+  # Static URL (default)
+  config.fallback_url = "/"
+
+  # Dynamic — receives decoded payload Hash (unverified, treat as untrusted)
+  config.fallback_url = ->(payload) {
+    slug = payload&.dig("shop")
+    slug.present? ? "/shops/#{slug}" : "/"
+  }
+end
+```
+
 ## For Shop Owners
 
 Tell your partner shops:
