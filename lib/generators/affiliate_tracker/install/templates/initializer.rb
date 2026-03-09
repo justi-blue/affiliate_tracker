@@ -14,4 +14,13 @@ AffiliateTracker.configure do |config|
   # config.authenticate_dashboard = -> {
   #   redirect_to main_app.login_path unless current_user&.admin?
   # }
+
+  # Fallback URL for invalid/missing signatures (default: "/")
+  # String: static URL
+  # Proc: receives decoded payload Hash (unverified — treat as untrusted)
+  # config.fallback_url = "/"
+  # config.fallback_url = ->(payload) {
+  #   slug = payload&.dig("shop")
+  #   slug.present? ? "/#{slug}" : "/"
+  # }
 end

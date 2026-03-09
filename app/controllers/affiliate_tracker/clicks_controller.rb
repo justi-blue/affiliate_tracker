@@ -25,8 +25,7 @@ module AffiliateTracker
         redirect_to final_url, allow_other_host: true, status: :moved_permanently
       rescue AffiliateTracker::Error => e
         Rails.logger.warn "[AffiliateTracker] Invalid tracking URL: #{e.message} from #{request.remote_ip}"
-        fallback_url = extract_fallback_url(payload)
-        redirect_to fallback_url, allow_other_host: true
+        redirect_to AffiliateTracker.configuration.resolve_fallback_url(payload), allow_other_host: true
       end
     end
 
@@ -81,20 +80,6 @@ module AffiliateTracker
       uri.to_s
     rescue URI::InvalidURIError
       url
-    end
-
-    # Try to extract a useful fallback URL from the (unverified) payload.
-    # Falls back to base_url (homepage) if payload is undecodable.
-    def extract_fallback_url(payload)
-      base = AffiliateTracker.configuration.base_url || '/'
-
-      return base if payload.blank?
-
-      data = JSON.parse(Base64.urlsafe_decode64(payload))
-      slug = data['shop']
-      slug.present? ? "#{base}/#{slug}" : base
-    rescue StandardError
-      base
     end
 
     def anonymize_ip(ip)

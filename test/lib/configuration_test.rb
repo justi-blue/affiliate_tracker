@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "test_helper"
+require 'test_helper'
 
 class ConfigurationTest < Minitest::Test
   def setup
@@ -8,7 +8,7 @@ class ConfigurationTest < Minitest::Test
   end
 
   def test_base_url_from_rails_routes
-    assert_equal "https://test.example.com", @config.base_url
+    assert_equal 'https://test.example.com', @config.base_url
   end
 
   def test_secret_key_from_rails_key_generator
@@ -35,6 +35,52 @@ class ConfigurationTest < Minitest::Test
   def test_after_click_default_nil
     assert_nil @config.after_click
   end
+
+  def test_fallback_url_default_is_root
+    assert_equal '/', @config.fallback_url
+  end
+
+  def test_resolve_fallback_url_with_string
+    @config.fallback_url = '/error'
+    assert_equal '/error', @config.resolve_fallback_url(nil)
+  end
+
+  def test_resolve_fallback_url_with_proc
+    @config.fallback_url = lambda { |payload|
+      slug = payload&.dig('shop')
+      slug ? "/#{slug}" : '/home'
+    }
+
+    # With valid payload containing shop slug
+    payload = Base64.urlsafe_encode64({ 'u' => 'https://shop.com', 'shop' => 'my-shop' }.to_json, padding: false)
+    assert_equal '/my-shop', @config.resolve_fallback_url(payload)
+  end
+
+  def test_resolve_fallback_url_proc_without_shop
+    @config.fallback_url = lambda { |payload|
+      slug = payload&.dig('shop')
+      slug ? "/#{slug}" : '/home'
+    }
+
+    # Payload without shop key
+    payload = Base64.urlsafe_encode64({ 'u' => 'https://shop.com' }.to_json, padding: false)
+    assert_equal '/home', @config.resolve_fallback_url(payload)
+  end
+
+  def test_resolve_fallback_url_with_nil_payload
+    @config.fallback_url = ->(payload) { payload ? '/found' : '/nope' }
+    assert_equal '/nope', @config.resolve_fallback_url(nil)
+  end
+
+  def test_resolve_fallback_url_with_corrupt_payload
+    @config.fallback_url = ->(payload) { payload ? '/found' : '/nope' }
+    assert_equal '/nope', @config.resolve_fallback_url('not-valid-base64!!!')
+  end
+
+  def test_resolve_fallback_url_proc_raising_error_falls_back
+    @config.fallback_url = ->(_) { raise 'boom' }
+    assert_equal '/', @config.resolve_fallback_url(nil)
+  end
 end
 
 class AffiliateTrackerConfigureTest < Minitest::Test
@@ -45,13 +91,13 @@ class AffiliateTrackerConfigureTest < Minitest::Test
   end
 
   def test_track_url_shorthand
-    url = AffiliateTracker.url("https://shop.com", shop_id: 1)
-    assert url.start_with?("https://test.example.com/a/")
+    url = AffiliateTracker.url('https://shop.com', shop_id: 1)
+    assert url.start_with?('https://test.example.com/a/')
     assert_match(/\?s=/, url)
   end
 
   def test_track_url_method
-    url = AffiliateTracker.track_url("https://shop.com", { shop_id: 1 })
-    assert url.start_with?("https://test.example.com/a/")
+    url = AffiliateTracker.track_url('https://shop.com', { shop_id: 1 })
+    assert url.start_with?('https://test.example.com/a/')
   end
 end

@@ -21,13 +21,39 @@ module AffiliateTracker
     # Example: -> { { user_id: Current.user&.id } }
     attr_accessor :default_metadata
 
+    # Fallback URL when signature is missing or invalid.
+    # Can be a String (static URL) or a Proc that receives the decoded payload Hash.
+    # The payload is decoded WITHOUT signature verification, so treat it as untrusted.
+    # Default: "/" (homepage)
+    #
+    # Examples:
+    #   config.fallback_url = "/oops"
+    #   config.fallback_url = ->(payload) { payload&.dig("shop") ? "/#{payload["shop"]}" : "/" }
+    attr_accessor :fallback_url
+
     def initialize
       @authenticate_dashboard = nil
       @after_click = nil
-      @utm_source = "affiliate"
-      @utm_medium = "referral"
+      @utm_source = 'affiliate'
+      @utm_medium = 'referral'
       @ref_param = nil
       @default_metadata = nil
+      @fallback_url = '/'
+    end
+
+    # Resolve fallback URL from config. Safely decodes payload (unverified) and
+    # passes it to the proc. Returns "/" if anything goes wrong.
+    def resolve_fallback_url(raw_payload)
+      payload_data = decode_payload_unsafe(raw_payload)
+
+      if @fallback_url.respond_to?(:call)
+        result = @fallback_url.call(payload_data)
+        result.presence || '/'
+      else
+        @fallback_url.to_s.presence || '/'
+      end
+    rescue StandardError
+      '/'
     end
 
     def resolve_default_metadata
@@ -46,14 +72,29 @@ module AffiliateTracker
                 {}
 
       host = options[:host]
-      raise Error, "Set config.action_mailer.default_url_options = { host: 'example.com' } in config/environments/*.rb" unless host
+      unless host
+        raise Error,
+              "Set config.action_mailer.default_url_options = { host: 'example.com' } in config/environments/*.rb"
+      end
 
-      protocol = options[:protocol] || "https"
+      protocol = options[:protocol] || 'https'
       "#{protocol}://#{host}"
     end
 
     def secret_key
-      Rails.application.key_generator.generate_key("affiliate_tracker", 32)
+      Rails.application.key_generator.generate_key('affiliate_tracker', 32)
+    end
+
+    private
+
+    # Decode Base64 payload without verifying signature.
+    # Used only for building fallback URLs — treat result as untrusted.
+    def decode_payload_unsafe(raw_payload)
+      return nil if raw_payload.blank?
+
+      JSON.parse(Base64.urlsafe_decode64(raw_payload))
+    rescue StandardError
+      nil
     end
   end
 end
